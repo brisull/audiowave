@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Mozilla Audio API - Audio Waveform</title>
+		<style>
+			article, aside, figure, figcaption, footer, header, hgroup, menu, nav, section { display:block; }
+			#container {
+				width:300px;
+				margin:20px;		
+			}
+			audio { 
+				margin:-43px 0 0;
+				padding:0;
+				display:block;
+				border:1px solid #000;
+				width:298px;
+				height:65px;
+			}
+			canvas {
+				background-color:#000;
+				width:900px;
+				height:300px;
+				margin:0;
+				padding:0;
+			}
+		</style>
+		<!--[if lt IE 9]>
+			<script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+		<![endif]-->
+	</head>
+	<body>
+		<div id="container">
+			<canvas id="canvas"></canvas>
+			<audio id="audio" controls>
+				<source src="IStarttoRun.mp3" type="audio/mp3">
+			</audio>
+			<div id="info"></div>
+		</div>
+		<script>
+			var audio = document.getElementById("audio");
+			var canvas = document.getElementById("canvas");
+			var context = canvas.getContext("2d");
+			var info = document.getElementById("info");
+			audio.addEventListener("MozAudioAvailable", drawWaveform, false);
+			audio.addEventListener("loadedmetadata", getAudioData, false);
+			var length;
+			var channels;
+			var rate;
+			
+			function getAudioData() {
+				rate = audio.mozSampleRate;
+				channels = audio.mozChannels;
+				length = audio.mozFrameBufferLength;
+				info.innerHTML = "rate: " + rate + "<br/>channels: " + channels + "</br>length: " + length;
+			}
+			
+			function drawWaveform(event) {
+				// console.log(length);
+				var data = event.frameBuffer;
+				var samples = length / 4; // 512
+				var step = (length / channels) / samples; // 2
+				context.fillRect(0,0,300,200);
+				context.strokeStyle = "#ff0000";
+				context.lineWidth = 3;
+				context.beginPath();
+				for (var i=0; i<samples;i++) { 
+					context.lineTo(i, 80 - data[i*step] * 100);
+					// console.log(i);
+				};
+				context.stroke();
+			}
+		</script>
+	</body>
+</html>
